@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const createMusicSchema = z.object({
+const payload = {
   body: z.object({
     title: z.string({
       required_error: 'Title is required',
@@ -16,6 +16,34 @@ export const createMusicSchema = z.object({
     }),
     imageUrl: z.string().url('Must be a valid URL'),
   }),
+};
+
+const params = {
+  params: z.object({
+    musicId: z.string({
+      required_error: 'MusicId is required',
+    }),
+  }),
+};
+
+export const createMusicSchema = z.object({
+  ...payload,
+});
+
+export const updateMusicSchema = z.object({
+  ...payload,
+  ...params,
+});
+
+export const deleteMusicSchema = z.object({
+  ...params,
+});
+
+export const getMusicSchema = z.object({
+  ...params,
 });
 
 export type CreateMusicInput = z.infer<typeof createMusicSchema>;
+export type UpdateMusicInput = z.infer<typeof updateMusicSchema>;
+export type DeleteMusicInput = z.infer<typeof deleteMusicSchema>;
+export type GetMusicInput = z.infer<typeof getMusicSchema>;
