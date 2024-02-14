@@ -7,7 +7,7 @@ export interface MusicInput {
   artist: string;
   genre: string;
   length: number;
-  imageUrl: string;
+  imageUrl?: string;
 }
 
 export interface MusicDocument extends mongoose.Document, MusicInput {
@@ -38,7 +38,7 @@ const musicSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    required: true,
+    default: "",
   },
 }, {
   timestamps: true,
