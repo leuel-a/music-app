@@ -14,14 +14,14 @@ const payload = {
     length: z.number({
       required_error: 'Length is required',
     }),
-    imageUrl: z.string().url('Must be a valid URL'),
+    imageUrl: z.string().url('Must be a valid URL').optional(),
   }),
 };
 
 const params = {
   params: z.object({
     musicId: z.string({
-      required_error: 'MusicId is required',
+      required_error: 'musicId is required',
     }),
   }),
 };
