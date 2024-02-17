@@ -1,4 +1,5 @@
 import { Express, Request, Response } from 'express';
+import mongoose from 'mongoose';
 
 import { createUserHandler } from './controllers/user.controller';
 import validateResource from './middlewares/validateResource';
@@ -10,16 +11,26 @@ import {
 } from './controllers/session.controller';
 import { createSessionSchema } from './schemas/session.schema';
 import requireUser from './middlewares/requireUser';
-import { createMusicSchema, getMusicSchema,deleteMusicSchema, updateMusicSchema } from './schemas/music.schema';
 import {
-  createMusicHandler, deleteMusicHandler, getAllMusicHandler,
-  getMusicHandler, getSelfMusicHandler,
+  createMusicSchema,
+  getMusicSchema,
+  deleteMusicSchema,
+  updateMusicSchema,
+} from './schemas/music.schema';
+import {
+  createMusicHandler,
+  deleteMusicHandler,
+  getAllMusicHandler,
+  getMusicHandler,
+  getSelfMusicHandler,
   updateMusicHandler,
 } from './controllers/music.controller';
 import { getAllMusic } from './services/music.service';
 
 function routes(app: Express) {
-  app.get('/status', (req: Request, res: Response) => res.sendStatus(200));
+  app.get('/status', (req: Request, res: Response) => {
+    res.json({ dbConnection: mongoose.connection.readyState === 1});
+  });
 
   // User Routes
   app.post('/api/users', validateResource(createUserSchema), createUserHandler);
@@ -31,9 +42,17 @@ function routes(app: Express) {
   // Music Routes
   app.post('/api/musics', [requireUser, validateResource(createMusicSchema)], createMusicHandler);
   app.get('/api/musics/', getAllMusicHandler);
-  app.put('/api/musics/:musicId', [requireUser, validateResource(updateMusicSchema)], updateMusicHandler);
+  app.put(
+    '/api/musics/:musicId',
+    [requireUser, validateResource(updateMusicSchema)],
+    updateMusicHandler,
+  );
   app.get('/api/musics/:musicId', [requireUser, validateResource(getMusicSchema)], getMusicHandler);
-  app.delete('/api/musics/:musicId', [requireUser, validateResource(deleteMusicSchema)], deleteMusicHandler);
+  app.delete(
+    '/api/musics/:musicId',
+    [requireUser, validateResource(deleteMusicSchema)],
+    deleteMusicHandler,
+  );
 }
 
 export default routes;

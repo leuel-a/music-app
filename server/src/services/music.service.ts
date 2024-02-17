@@ -5,18 +5,43 @@ export async function createMusic(input: MusicInput): Promise<MusicDocument> {
   return MusicModel.create(input);
 }
 
-export async function findMusic(query: FilterQuery<MusicDocument>, options: QueryOptions = { lean: true }) {
+export async function findMusic(
+  query: FilterQuery<MusicDocument>,
+  options: QueryOptions = { lean: true },
+) {
   return MusicModel.findOne(query, {}, options);
 }
 
 export async function getAllMusic(page: number, pageSize: number, userId?: string) {
+  let query;
+
   if (userId) {
-    return MusicModel.find({ user: userId }).skip((page - 1) * pageSize).limit(pageSize).lean();
+    query = MusicModel.find({ user: userId });
+  } else {
+    query = MusicModel.find({});
   }
-  return MusicModel.find({}).skip((page - 1) * pageSize).limit(pageSize).lean();
+
+  const totalItems = await MusicModel.countDocuments();
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const results = await query
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .lean();
+  return {
+    data: results,
+    totalItems,
+    totalPages,
+    currentPage: page,
+    pageSize,
+  };
 }
 
-export async function findAndUpdate(query: FilterQuery<MusicDocument>, update: UpdateQuery<MusicDocument>, options: QueryOptions) {
+export async function findAndUpdate(
+  query: FilterQuery<MusicDocument>,
+  update: UpdateQuery<MusicDocument>,
+  options: QueryOptions,
+) {
   return MusicModel.findOneAndUpdate(query, update, options);
 }
 

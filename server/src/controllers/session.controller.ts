@@ -7,11 +7,17 @@ import { createSession, findSessions, updateSession } from '../services/session.
 
 export async function createUserSessionHandler(req: Request, res: Response) {
   const user = await validatePassword(req.body);
-  if (!user) return res.status(401).send('invalid email or password');
+  if (!user) return res.status(401).json({ message: 'Invalid email or password' });
 
   const session = await createSession(user._id, req.get('user-agent') || '');
-  const accessToken = signJwt({ ...user, session: session._id }, { expiresIn: config.get<string>('accessTokenTtl') });
-  const refreshToken = signJwt({ ...user, session: session._id }, { expiresIn: config.get<string>('refreshTokenTtl') });
+  const accessToken = signJwt(
+    { ...user, session: session._id },
+    { expiresIn: config.get<string>('accessTokenTtl') },
+  );
+  const refreshToken = signJwt(
+    { ...user, session: session._id },
+    { expiresIn: config.get<string>('refreshTokenTtl') },
+  );
 
   return res.send({ accessToken, refreshToken });
 }

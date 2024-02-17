@@ -1,16 +1,35 @@
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
-import { CreateMusicInput, DeleteMusicInput, GetMusicInput, UpdateMusicInput } from '../schemas/music.schema';
-import { createMusic, deleteMusic, findAndUpdate, findMusic, getAllMusic } from '../services/music.service';
+import {
+  CreateMusicInput,
+  DeleteMusicInput,
+  GetMusicInput,
+  UpdateMusicInput,
+} from '../schemas/music.schema';
+import {
+  createMusic,
+  deleteMusic,
+  findAndUpdate,
+  findMusic,
+  getAllMusic,
+} from '../services/music.service';
+import { UserDocument } from '../models/user.model';
+import { JwtPayload } from 'jsonwebtoken';
 
-export async function createMusicHandler(req: Request<{}, {}, CreateMusicInput['body']>, res: Response) {
+export async function createMusicHandler(
+  req: Request<{}, {}, CreateMusicInput['body']>,
+  res: Response,
+) {
   const userId = res.locals.user._id;
   const music = await createMusic({ ...req.body, user: userId });
   return res.send(omit(music.toJSON(), ['__v']));
 }
 
-export async function updateMusicHandler(req: Request<UpdateMusicInput['params'], {}, UpdateMusicInput['body']>, res: Response) {
+export async function updateMusicHandler(
+  req: Request<UpdateMusicInput['params'], {}, UpdateMusicInput['body']>,
+  res: Response,
+) {
   const userId = res.locals.user._id;
   const musicId = req.params.musicId;
   const update = req.body;
@@ -44,20 +63,25 @@ export async function getMusicHandler(req: Request<GetMusicInput['params']>, res
 }
 
 export async function getSelfMusicHandler(req: Request, res: Response) {
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
+
+  const userId = user._id;
   const page = parseInt(req.query.page as string) || 1;
-  const pageSize = parseInt(req.query.pageSize as string) || 10;
+  const pageSize = parseInt(req.query.pageSize as string) || 8;
+
+  const { password, __v, ...userWithoutPassword } = user;
 
   const musics = await getAllMusic(page, pageSize, userId);
-  return res.send(musics);
+
+  return res.json({ ...musics, user: userWithoutPassword });
 }
 
 export async function getAllMusicHandler(req: Request, res: Response) {
   const page = parseInt(req.query.page as string) || 1;
-  const pageSize = parseInt(req.query.pageSize as string) || 10;
+  const pageSize = parseInt(req.query.pageSize as string) || 8;
 
-  const musics = await getAllMusic(page, pageSize);
-  return res.send(musics);
+  const result = await getAllMusic(page, pageSize);
+  return res.send(result);
 }
 
 export async function deleteMusicHandler(req: Request<DeleteMusicInput['params']>, res: Response) {
@@ -76,4 +100,3 @@ export async function deleteMusicHandler(req: Request<DeleteMusicInput['params']
   await deleteMusic({ _id: musicId });
   return res.sendStatus(200);
 }
-

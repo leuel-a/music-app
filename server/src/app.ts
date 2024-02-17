@@ -9,9 +9,16 @@ import deserializeUser from './middlewares/deserializeUser';
 const app = express();
 const port = config.get<number>('port');
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*'); // update to match the domain you will make the request from
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, authorization, x-refresh',
+  );
+  res.header(
+    'Access-Control-Allow-Methods',
+    'GET, PUT, DELETE, POST',
+  );
   next();
 });
 
