@@ -31,3 +31,5 @@ The project is structured as follows:
 4. Start the server with `npm start`.
 
 ## Postman Documentation
+
+The API documentation is available on Postman. It includes detailed information on each endpoint, request/response examples, and guides on how to use them effectively. To access the live documentation, please visit the following link:
