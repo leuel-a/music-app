@@ -9,6 +9,26 @@ interface Music {
   updatedAt: string;
 }
 
+export const musicGenres = [
+  'Pop',
+  'Rock',
+  'Hip-Hop/Rap',
+  'Country',
+  'Jazz',
+  'Classical',
+  'Electronic/Dance',
+  'Blues',
+  'Reggae',
+  'Metal',
+];
+
+export const defaults = {
+  API_ENDPOINT: 'http://localhost:1337',
+  pageSize: 8,
+  accessTokenTtl: '15m',
+  refreshTokenTtl: '7d',
+};
+
 const musicList: Music[] = [
   {
     user: '6234abcde18f9b4321c0d210',
@@ -83,7 +103,7 @@ const musicList: Music[] = [
   {
     user: '6234abcde18f9b4321c0d217',
     title: 'Into the Wild',
-    artist: 'Nature\'s Voice',
+    artist: "Nature's Voice",
     genre: 'World',
     length: 265,
     imageUrl: 'https://example.com/images/into-the-wild.jpg',
