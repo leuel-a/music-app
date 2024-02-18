@@ -1,3 +1,7 @@
+import { config } from "dotenv";
+
+config();
+
 const privateKey: string = `
 -----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCOo+yL7M3e1rFl
