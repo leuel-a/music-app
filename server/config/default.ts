@@ -40,8 +40,8 @@ DNzQ4f1e6BQMaJ7dsbcQokP0R1Zbv0qGHhG1WZt7OGhnMeU3s+hyykvKmTnNMrlY
 -----END PUBLIC KEY-----`;
 
 export default {
-  port: 1337,
-  dbUri: 'mongodb+srv://leuela:Mf5EALTod4aeVaxX@cluster0.e9knves.mongodb.net/music-app-db?retryWrites=true&w=majority',
+  port: process.env.PORT,
+  dbUri: process.env.MONGODB_URI,
   saltWorkFactor: 10,
   privateKey,
   publicKey,

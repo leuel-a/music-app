@@ -16,9 +16,9 @@ export async function getAllMusic(page: number, pageSize: number, userId?: strin
   let query;
 
   if (userId) {
-    query = MusicModel.find({ user: userId });
+    query = MusicModel.find({ user: userId }, {}, { lean: true, sort: { createdAt: -1 } });
   } else {
-    query = MusicModel.find({});
+    query = MusicModel.find({}, {}, { lean: true, sort: { createdAt: -1 } });
   }
 
   const totalItems = await MusicModel.countDocuments();
