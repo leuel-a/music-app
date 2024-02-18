@@ -4,7 +4,14 @@ import Cookies from 'js-cookie';
 import userService from '../../services/userService';
 import { LoginUserResponse } from '../../types/User';
 import { AxiosError, AxiosResponse } from 'axios';
-import { loginSuccess, loginFailure, checkAuthState } from './authSlice';
+import {
+  loginSuccess,
+  loginFailure,
+  checkAuthState,
+  registerRequest,
+  registerFailure,
+  registerSuccess,
+} from './authSlice';
 import { defaults } from '../../constants';
 
 function* checkAccessToken() {
@@ -43,10 +50,38 @@ function* handleUserAuthentication(
   }
 }
 
+function* handleUserLogout() {
+  yield call(userService.signOut);
+
+  Cookies.remove('accessToken');
+  Cookies.remove('refreshToken');
+}
+
+function* handleCreateUser(
+  action: PayloadAction<{
+    name: string;
+    password: string;
+    email: string;
+    confirmPassword: string;
+  }>,
+) {
+  try {
+    yield call(userService.createUser, action.payload);
+    yield put(registerSuccess());
+  } catch (error: any) {
+    console.log(error);
+    yield put(registerFailure({ message: error.message }));
+  }
+}
+
 // Watcher Saga for User Authentication
 export function* watchUserAuthentication() {
   yield takeLatest('auth/loginRequest', handleUserAuthentication);
+  yield takeLatest('auth/logoutRequest', handleUserLogout);
+  yield takeLatest('auth/registerRequest', handleCreateUser);
 }
+
+// Watcher Saga for the Access Token
 export function* watchAccessToken() {
   yield takeLeading('@init/checkAccessToken', checkAccessToken);
 }

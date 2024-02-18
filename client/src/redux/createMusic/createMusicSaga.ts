@@ -5,6 +5,7 @@ import {
   createMusicRequestSuccess,
   createMusicRequestFailure,
 } from './createMusicSlice';
+import { getSelfMusics } from '../user/userSlice';
 
 function* handleCreateMusic(
   action: PayloadAction<{
@@ -17,7 +18,7 @@ function* handleCreateMusic(
 ) {
   const { imageUrl, duration, ...rest } = action.payload;
   const newMusic = {
-    ...(imageUrl ? {imageUrl} : {}),
+    ...(imageUrl ? { imageUrl } : {}),
     length: parseInt(duration),
     ...rest,
   };

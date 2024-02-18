@@ -5,9 +5,9 @@ import { Link, useLocation } from 'react-router-dom';
 
 import H1 from './ui/H1';
 import { COLORS } from '../styles/colors';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux';
-import { stat } from 'fs';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../redux';
+import { logoutRequest } from '../redux/authentication/authSlice';
 
 const Nav = styled.nav`
   padding: 20px 0;
@@ -36,6 +36,7 @@ const NavLink = styled(Link)`
 export default function Navbar() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <Nav
@@ -62,7 +63,27 @@ export default function Navbar() {
             {location.pathname !== '/songs/me' && (
               <NavLink to="/songs/me">Personal Board</NavLink>
             )}
-            <NavLink to="/">Logout</NavLink>
+            <button
+              css={css`
+                color: ${COLORS.white};
+                font-weight: bold;
+                text-decoration: none;
+                font-family: inherit;
+                background: transparent;
+                font-size: 1.1rem;
+                padding: 10px 30px;
+                border-radius: 5px;
+                border: 2px solid ${COLORS.white};
+
+                &:hover {
+                  color: ${COLORS.green};
+                  border: 2px solid ${COLORS.lightGray};
+                }
+              `}
+              onClick={() => dispatch(logoutRequest())}
+            >
+              Logout
+            </button>
           </>
         ) : (
           <>

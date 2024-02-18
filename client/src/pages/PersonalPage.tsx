@@ -11,7 +11,7 @@ import MusicCard from '../components/MusicCard';
 import { AppDispatch, RootState } from '../redux';
 import GlobalStyles from '../styles/GlobalStyles';
 import MusicContainer from '../styles/MusicContainer';
-import {
+import userSlice, {
   getSelfMusics,
   deleteMusic,
   updateMusic,
@@ -20,7 +20,16 @@ import ButtonGroup from '../styles/AddMusicButtonGroup';
 import ErrorMessageSpan from '../styles/ErrorMessageSpan';
 import { createMusicRequest } from '../redux/createMusic/createMusicSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCircleXmark,
+  faCircleChevronRight,
+  faCircleChevronLeft,
+} from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
+import H1 from '../components/ui/H1';
+import { checkAuthState } from '../redux/authentication/authSlice';
+import { fetchMusics } from '../redux/musics/musicSlice';
+import Cookies from 'js-cookie';
 
 const MySongsPage: React.FC = () => {
   // States for the inputs
@@ -44,9 +53,14 @@ const MySongsPage: React.FC = () => {
     musics,
     loading: loadingMusics,
     user,
+    currPage,
+    totalPages,
     faliure: failureLoadingMusics,
     errorMessage: errorLoadingMusics,
   } = useSelector((state: RootState) => state.user);
+
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
 
   const {
     loading: loadingCreateMusic,
@@ -61,6 +75,7 @@ const MySongsPage: React.FC = () => {
     setArtistName('');
     setDuration('');
     setImageUrl('');
+    setGenre('');
   };
 
   const handleDeleteMusic = (musicId: string) => {
@@ -98,7 +113,7 @@ const MySongsPage: React.FC = () => {
         genre,
       };
       dispatch(createMusicRequest(music));
-      
+      dispatch(getSelfMusics({ type: 'Initial' }));
     } else {
       // update music
       const music = {
@@ -112,9 +127,23 @@ const MySongsPage: React.FC = () => {
     }
   };
 
+  console.log(currPage, totalPages);
+
+  useEffect(() => {
+    dispatch(fetchMusics({ type: 'Initial' }));
+    const accessToken = Cookies.get('accessToken');
+
+    const authenticated = !!accessToken;
+    dispatch(checkAuthState({ isAuthenticated: authenticated }));
+  }, [dispatch]);
+
   useEffect(() => {
     dispatch(getSelfMusics({ type: 'Initial' }));
   }, [dispatch]);
+
+  if (!isAuthenticated) {
+    navigate('/signup', { replace: true });
+  }
 
   return (
     <>
@@ -123,7 +152,7 @@ const MySongsPage: React.FC = () => {
       <div
         css={css`
           display: flex;
-          column-gap: 30px;
+          column-gap: 35px;
         `}
       >
         <div
@@ -305,70 +334,140 @@ const MySongsPage: React.FC = () => {
             )}
           </form>
         </div>
-        {loadingMusics ? (
+        <div
+          css={css`
+            display: flex;
+            flex-direction: column;
+          `}
+        >
           <div
             css={css`
-              font-size: 1.5rem;
-              color: #fff;
-              font-weight: bold;
-              font-size: 3rem;
-              text-align: center;
-              margin-top: 180px;
+              margin-top: 25px;
             `}
           >
-            {errorLoadingMusics}
+            <button
+              style={{
+                cursor: 'pointer',
+              }}
+              css={css`
+                background-color: inherit;
+                border: none;
+              `}
+              disabled={currPage === 1}
+              onClick={() => {
+                dispatch(getSelfMusics({ type: 'Left' }));
+              }}
+            >
+              <FontAwesomeIcon
+                color={currPage === 1 ? COLORS.lightGray : COLORS.white}
+                size="2x"
+                icon={faCircleChevronLeft}
+              />
+            </button>
+            <button
+              style={{
+                cursor: 'pointer',
+              }}
+              css={css`
+                background-color: inherit;
+                border: none;
+              `}
+              disabled={currPage === totalPages}
+              onClick={() => {
+                dispatch(getSelfMusics({ type: 'Right' }));
+              }}
+            >
+              <FontAwesomeIcon
+                style={{
+                  cursor: 'pointer',
+                }}
+                color={
+                  currPage === totalPages || musics.length === 0
+                    ? COLORS.lightGray
+                    : COLORS.white
+                }
+                size="2x"
+                icon={faCircleChevronRight}
+              />
+            </button>
           </div>
-        ) : (
-          <MusicContainer>
-            {musics.map((music) => (
+          <div>
+            {errorLoadingMusics ? (
               <div
                 css={css`
-                  position: relative;
+                  font-size: 1.5rem;
+                  color: #fff;
+                  font-weight: bold;
+                  font-size: 3rem;
+                  text-align: center;
+                  margin-top: 180px;
                 `}
-                key={music._id}
               >
-                <div
-                  onClick={() => {
-                    setTitle(music.title);
-                    setArtistName(music.artist);
-                    setDuration(music.length.toString());
-                    setGenre(music.genre);
-                    setImageUrl(music.imageUrl);
-                    setSelectedMusicId(music._id);
-                  }}
-                >
-                  <MusicCard key={music._id} music={music} />
-                </div>
-                <FontAwesomeIcon
-                  size="2x"
-                  color="gray"
-                  css={css`
-                    position: absolute;
-                    bottom: 10px;
-                    right: 25px;
-                    cursor: pointer;
-                  `}
-                  icon={faCircleXmark}
-                  onClick={() => handleDeleteMusic(music._id)}
-                />
+                {errorLoadingMusics}
               </div>
-            ))}
-          </MusicContainer>
-        )}
-        {loadingMusics && (
-          <div
-            css={css`
-              font-size: 1.5rem;
-              color: #fff;
-              font-weight: bold;
-              font-size: 3rem;
-              text-align: center;
-              margin-top: 180px;
-            `}
-          >
-            Loading
+            ) : musics.length === 0 &&
+              loadingMusics !== true &&
+              currPage === 1 ? (
+              <H1
+                style={{
+                  marginTop: '40px',
+                }}
+              >
+                Add Musics to your library.
+              </H1>
+            ) : (
+              <MusicContainer>
+                {musics.map((music) => (
+                  <div
+                    css={css`
+                      position: relative;
+                    `}
+                    key={music._id}
+                  >
+                    <div
+                      onClick={() => {
+                        setTitle(music.title);
+                        setArtistName(music.artist);
+                        setDuration(music.length.toString());
+                        setGenre(music.genre);
+                        setImageUrl(music.imageUrl);
+                        setSelectedMusicId(music._id);
+                      }}
+                    >
+                      <MusicCard key={music._id} music={music} />
+                    </div>
+                    <FontAwesomeIcon
+                      size="2x"
+                      color="gray"
+                      css={css`
+                        position: absolute;
+                        bottom: 10px;
+                        right: 0px;
+                        cursor: pointer;
+                      `}
+                      icon={faCircleXmark}
+                      onClick={() => handleDeleteMusic(music._id)}
+                    />
+                  </div>
+                ))}
+              </MusicContainer>
+            )}
+            {loadingMusics && musics.length === 0 && (
+              <div
+                css={css`
+                  font-size: 1.5rem;
+                  color: #fff;
+                  font-weight: bold;
+                  font-size: 3rem;
+                  text-align: center;
+                  margin-top: 180px;
+                `}
+              >
+                Loading
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </>
   );

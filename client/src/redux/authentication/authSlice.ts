@@ -5,6 +5,10 @@ interface InitialState {
   loading: boolean;
   failure: boolean;
   errorMessage?: string;
+  registerLoading: boolean;
+  registerFailure: boolean;
+  registerErrorMessage?: string;
+  registerUserSuccess?: boolean;
 }
 
 const initialState: InitialState = {
@@ -12,6 +16,10 @@ const initialState: InitialState = {
   loading: false,
   failure: false,
   errorMessage: undefined,
+  registerLoading: false,
+  registerFailure: false,
+  registerUserSuccess: false,
+  registerErrorMessage: undefined,
 };
 
 const authSlice = createSlice({
@@ -39,9 +47,40 @@ const authSlice = createSlice({
     ) => {
       state.isAuthenticated = action.payload.isAuthenticated;
     },
+    logoutRequest: (state) => {
+      state.isAuthenticated = false;
+    },
+    registerRequest: (
+      state,
+      action: PayloadAction<{
+        name: string;
+        email: string;
+        password: string;
+        confirmPassword: string;
+      }>,
+    ) => {
+      state.registerLoading = true;
+    },
+    registerSuccess: (state) => {
+      state.registerLoading = false;
+      state.registerUserSuccess = true;
+    },
+    registerFailure: (state, action: PayloadAction<{ message: string }>) => {
+      state.registerLoading = false;
+      state.registerFailure = true;
+      state.registerErrorMessage = action.payload.message;
+    },
   },
 });
 
-export const { loginRequest, loginSuccess, loginFailure, checkAuthState } =
-  authSlice.actions;
+export const {
+  loginRequest,
+  logoutRequest,
+  loginSuccess,
+  loginFailure,
+  checkAuthState,
+  registerRequest,
+  registerFailure,
+  registerSuccess,
+} = authSlice.actions;
 export default authSlice.reducer;

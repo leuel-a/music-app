@@ -23,7 +23,7 @@ export const musicGenres = [
 ];
 
 export const defaults = {
-  API_ENDPOINT: 'http://localhost:1337',
+  API_ENDPOINT: 'https://music-app-api-sa8w.onrender.com',
   pageSize: 8,
   accessTokenTtl: '15m',
   refreshTokenTtl: '7d',

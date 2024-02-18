@@ -9,7 +9,7 @@ const CheckBox: React.FC<Props> = ({ name }) => {
     <div>
       <label>
         <input type="checkbox" />
-        <span>{name}</span>
+        <span style={{ fontWeight: 'bold' }}>{name}</span>
       </label>
     </div>
   );
